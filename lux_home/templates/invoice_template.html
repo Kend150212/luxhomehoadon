@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice #{{ invoice.id }}</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+            color: #555;
+            margin: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .invoice-container {
+            width: 800px;
+            margin: auto;
+            padding: 30px;
+            border: 1px solid #eee;
+            box-shadow: 0 0 10px rgba(0, 0, 0, .15);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2em;
+            color: #333;
+        }
+        .company-details {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        .company-details p {
+            margin: 0;
+        }
+        .invoice-details, .guest-details, .booking-details {
+            margin-bottom: 20px;
+        }
+        .invoice-details table, .guest-details table, .booking-details table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .invoice-details th, .guest-details th, .booking-details th {
+            text-align: left;
+            padding: 5px;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #ddd;
+            width: 150px; /* Label column width */
+        }
+        .invoice-details td, .guest-details td, .booking-details td {
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .items-table th, .items-table td {
+            border: 1px solid #eee;
+            padding: 8px;
+            text-align: left;
+        }
+        .items-table th {
+            background-color: #f9f9f9;
+        }
+        .items-table .description {
+            width: 60%;
+        }
+        .items-table .amount {
+            text-align: right;
+        }
+        .totals-table {
+            width: 100%;
+            margin-top: 20px;
+        }
+        .totals-table td {
+            padding: 5px;
+        }
+        .totals-table .label {
+            text-align: right;
+            font-weight: bold;
+            width: 80%;
+        }
+        .totals-table .value {
+            text-align: right;
+            font-weight: bold;
+        }
+        .payment-status {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .payment-status.paid { color: green; }
+        .payment-status.pending { color: orange; }
+        .payment-status.overdue { color: red; }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #777;
+        }
+        .no-print {
+            /* Styles for elements not to be printed or shown in PDF render */
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        {% if not is_pdf_render %}
+        <div class="no-print" style="text-align: right; margin-bottom: 15px;">
+            <a href="{{ url_for('download_invoice_pdf', booking_id=booking.id) }}" class="btn btn-primary no-print" style="padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Download PDF</a>
+            <button onclick="window.print()" class="btn btn-secondary no-print" style="padding: 10px 15px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 5px; margin-left: 10px; border: none; cursor: pointer;">Print</button>
+        </div>
+        {% endif %}
+        <div class="header">
+            <h1>INVOICE</h1>
+        </div>
+
+        <div class="company-details">
+            <p><strong>Lux Home</strong></p>
+            <p>123 Dream Lane, Paradise City</p>
+            <p>Phone: (123) 456-7890</p>
+            <p>Email: contact@luxhome.xyz</p>
+        </div>
+
+        <div class="invoice-details">
+            <table>
+                <tr>
+                    <th>Invoice Number:</th>
+                    <td>#{{ invoice.id }}</td>
+                </tr>
+                <tr>
+                    <th>Issue Date:</th>
+                    <td>{{ invoice.issue_date.strftime('%Y-%m-%d') }}</td>
+                </tr>
+                <tr>
+                    <th>Due Date:</th>
+                    <td>{{ invoice.due_date.strftime('%Y-%m-%d') if invoice.due_date else 'N/A' }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="guest-details">
+            <table>
+                <caption><strong>Billed To:</strong></caption>
+                <tr>
+                    <th>Guest Name:</th>
+                    <td>{{ guest.name }}</td>
+                </tr>
+                <tr>
+                    <th>Email:</th>
+                    <td>{{ guest.email }}</td>
+                </tr>
+                {% if guest.phone %}
+                <tr>
+                    <th>Phone:</th>
+                    <td>{{ guest.phone }}</td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+
+        <div class="booking-details">
+            <table>
+                <caption><strong>Booking Details:</strong></caption>
+                <tr>
+                    <th>Room Number:</th>
+                    <td>{{ room.room_number }}</td>
+                </tr>
+                <tr>
+                    <th>Room Type:</th>
+                    <td>{{ room.room_type }}</td>
+                </tr>
+                <tr>
+                    <th>Check-in Date:</th>
+                    <td>{{ booking.check_in_date.strftime('%Y-%m-%d %H:%M') if booking.check_in_date else 'N/A' }}</td>
+                </tr>
+                <tr>
+                    <th>Check-out Date:</th>
+                    <td>{{ booking.check_out_date.strftime('%Y-%m-%d %H:%M') if booking.check_out_date else 'N/A' }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <h3>Charges</h3>
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th class="description">Description</th>
+                    <th class="amount">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        Room Charge: {{ room.room_type }} ({{ room.room_number }})<br>
+                        <em>
+                            {{ duration_days }} night(s) at 
+                            ${{ "%.2f"|format(room.rate_per_night) }}/night
+                        </em>
+                    </td>
+                    <td class="amount">${{ "%.2f"|format(booking.total_amount) }}</td>
+                </tr>
+                <!-- Future services will be itemized here -->
+            </tbody>
+        </table>
+
+        <table class="totals-table">
+            <tr>
+                <td class="label">Total Amount Due:</td>
+                <td class="value">${{ "%.2f"|format(booking.total_amount) }}</td>
+            </tr>
+        </table>
+
+        <div class="payment-status {{ invoice.payment_status.lower() }}">
+            Payment Status: {{ invoice.payment_status }}
+        </div>
+
+        <div class="footer">
+            <p>Thank you for choosing Lux Home!</p>
+            <p>Please contact us if you have any questions regarding this invoice.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,194 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+header {
+    background-color: #333;
+    color: white;
+    padding: 1rem 0;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2rem;
+}
+
+nav a {
+    color: white;
+    margin: 0 15px;
+    text-decoration: none;
+}
+nav a:hover {
+    text-decoration: underline;
+}
+
+main {
+    padding: 20px;
+}
+
+footer {
+    text-align: center;
+    padding: 10px 0;
+    background-color: #333;
+    color: white;
+    position: fixed; /* Or 'absolute' if less content */
+    bottom: 0;
+    width: 100%;
+}
+
+
+/* General Button Styles (Optional - Good for consistency) */
+.btn {
+    display: inline-block;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+.btn-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+.btn-info {
+    background-color: #17a2b8;
+    color: white;
+}
+.btn-sm {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+}
+
+
+/* Room Grid and Card Styles */
+.room-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+    padding-bottom: 60px; /* Add padding to avoid overlap with fixed footer */
+}
+
+.room-card {
+    background-color: white;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: box-shadow 0.3s ease;
+}
+
+.room-card:hover {
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.room-card h4 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.room-card p {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 15px; /* Pill shape */
+    color: white;
+    font-weight: bold;
+    text-transform: capitalize;
+    font-size: 0.8em;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+/* Status-specific styles for room cards (border) and badges (background) */
+.room-card.status-available {
+    border-left: 5px solid #28a745; /* Green */
+}
+.status-badge.status-available {
+    background-color: #28a745; /* Green */
+}
+
+.room-card.status-occupied {
+    border-left: 5px solid #dc3545; /* Red */
+}
+.status-badge.status-occupied {
+    background-color: #dc3545; /* Red */
+}
+
+.room-card.status-needs_cleaning {
+    border-left: 5px solid #ffc107; /* Yellow */
+}
+.status-badge.status-needs_cleaning {
+    background-color: #ffc107; /* Yellow */
+    color: #212529; /* Darker text for yellow */
+}
+
+.room-card.status-maintenance {
+    border-left: 5px solid #6c757d; /* Gray */
+}
+.status-badge.status-maintenance {
+    background-color: #6c757d; /* Gray */
+}
+
+/* Form Styles (from _form_helpers and check_in.html) */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-control-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.form-control,
+select.form-control { /* Ensure select also gets styling */
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Important for width: 100% */
+}
+
+/* Flash Messages Styling */
+.flash-messages {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+}
+.flash-messages li {
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    text-align: center;
+}
+.flash-messages li.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+.flash-messages li.danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+.flash-messages li.info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
