@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Hotel Dashboard</h2>
+
+<h3>Rooms</h3>
+{% if rooms %}
+    <div class="room-grid">
+        {% for room in rooms %}
+        <div class="room-card status-{{ room.status.lower().replace(' ', '_') }}"> {# Ensure status is lower and spaces replaced #}
+            <h4>Room {{ room.room_number }}</h4>
+            <p>Type: {{ room.room_type }}</p>
+            <p>Rate: ${{ room.rate_per_night }}/night</p>
+            <p>Status: <span class="status-badge status-{{ room.status.lower().replace(' ', '_') }}">{{ room.status }}</span></p>
+            {% if room.status == 'occupied' and room.id in active_bookings_map %}
+                <form action="{{ url_for('check_out', booking_id=active_bookings_map[room.id]) }}" method="POST" style="display: inline;">
+                    <input type="submit" value="Check-out" class="btn btn-sm btn-warning">
+                </form>
+            {% elif room.status == 'available' %}
+                <a href="{{ url_for('check_in', room_id=room.id) }}" class="btn btn-sm btn-success">Check-in</a>
+            {% elif room.status == 'needs_cleaning' %}
+                {# Placeholder for future "Mark as Clean" button #}
+                <span class="text-muted">Needs Cleaning</span> 
+                {# Example of a future button: <button class="btn btn-sm btn-info">Mark as Clean</button> #}
+            {% elif room.status == 'maintenance' %}
+                 <span class="text-muted">Maintenance</span>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>No rooms found.</p>
+{% endif %}
+
+<hr>
+<h3>Recent Check-outs & Invoices</h3>
+{% if completed_bookings %}
+    <div class="completed-bookings-list">
+        <table>
+            <thead>
+                <tr>
+                    <th>Room</th>
+                    <th>Guest</th>
+                    <th>Check-out Date</th>
+                    <th>Total Amount</th>
+                    <th>Invoice</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for booking in completed_bookings %}
+                <tr>
+                    <td>{{ booking.room.room_number }} ({{ booking.room.room_type }})</td>
+                    <td>{{ booking.guest.name }}</td>
+                    <td>{{ booking.check_out_date.strftime('%Y-%m-%d %H:%M') if booking.check_out_date else 'N/A' }}</td>
+                    <td>${{ "%.2f"|format(booking.total_amount) if booking.total_amount is not none else 'N/A' }}</td>
+                    <td>
+                        <a href="{{ url_for('view_invoice', booking_id=booking.id) }}" class="btn btn-sm btn-info">View Invoice</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <p>No recent check-outs found.</p>
+{% endif %}
+
+{% endblock %}

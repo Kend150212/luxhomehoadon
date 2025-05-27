@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% from "_form_helpers.html" import render_field %}
+
+{% block content %}
+<h2>{{ title }}</h2>
+<form method="POST" action="{{ url_for('check_in') }}">
+    {{ form.hidden_tag() }}
+
+    <fieldset>
+        <legend>Guest Information</legend>
+        {{ render_field(form.guest_id, class="form-control", id="guest_select") }}
+
+        <div id="new_guest_fields" style="display:none;">
+            {{ render_field(form.new_guest_name, class="form-control") }}
+            {{ render_field(form.new_guest_email, class="form-control") }}
+            {{ render_field(form.new_guest_phone, class="form-control") }}
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend>Booking Details</legend>
+        {{ render_field(form.room_id, class="form-control") }}
+        {{ render_field(form.check_in_date, class="form-control") }}
+        {{ render_field(form.check_out_date, class="form-control") }}
+    </fieldset>
+
+    {{ render_field(form.submit, class="btn btn-primary") }}
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var guestSelect = document.getElementById('guest_select');
+        var newGuestFields = document.getElementById('new_guest_fields');
+
+        function toggleNewGuestFields() {
+            if (guestSelect.value == '0') { // '0' is the value for '--- New Guest ---'
+                newGuestFields.style.display = 'block';
+            } else {
+                newGuestFields.style.display = 'none';
+            }
+        }
+
+        // Initial check
+        toggleNewGuestFields();
+
+        // Toggle when selection changes
+        guestSelect.addEventListener('change', toggleNewGuestFields);
+    });
+</script>
+{% endblock %}
