@@ -1,68 +1,126 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Hotel Dashboard</h2>
+<div class="container mx-auto px-4 py-8">
 
-<h3>Rooms</h3>
-{% if rooms %}
-    <div class="room-grid">
-        {% for room in rooms %}
-        <div class="room-card status-{{ room.status.lower().replace(' ', '_') }}"> {# Ensure status is lower and spaces replaced #}
-            <h4>Room {{ room.room_number }}</h4>
-            <p>Type: {{ room.room_type }}</p>
-            <p>Rate: ${{ room.rate_per_night }}/night</p>
-            <p>Status: <span class="status-badge status-{{ room.status.lower().replace(' ', '_') }}">{{ room.status }}</span></p>
-            {% if room.status == 'occupied' and room.id in active_bookings_map %}
-                <form action="{{ url_for('check_out', booking_id=active_bookings_map[room.id]) }}" method="POST" style="display: inline;">
-                    <input type="submit" value="Check-out" class="btn btn-sm btn-warning">
-                </form>
-            {% elif room.status == 'available' %}
-                <a href="{{ url_for('check_in', room_id=room.id) }}" class="btn btn-sm btn-success">Check-in</a>
-            {% elif room.status == 'needs_cleaning' %}
-                {# Placeholder for future "Mark as Clean" button #}
-                <span class="text-muted">Needs Cleaning</span> 
-                {# Example of a future button: <button class="btn btn-sm btn-info">Mark as Clean</button> #}
-            {% elif room.status == 'maintenance' %}
-                 <span class="text-muted">Maintenance</span>
-            {% endif %}
-        </div>
-        {% endfor %}
+    <h2 class="text-3xl font-bold text-gray-800 mb-8">Hotel Dashboard</h2>
+
+    <div class="mb-6">
+        <a href="{{ url_for('check_in') }}" class="inline-block bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700">
+            Check-In Guest
+        </a>
     </div>
-{% else %}
-    <p>No rooms found.</p>
-{% endif %}
 
-<hr>
-<h3>Recent Check-outs & Invoices</h3>
-{% if completed_bookings %}
-    <div class="completed-bookings-list">
-        <table>
-            <thead>
-                <tr>
-                    <th>Room</th>
-                    <th>Guest</th>
-                    <th>Check-out Date</th>
-                    <th>Total Amount</th>
-                    <th>Invoice</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for booking in completed_bookings %}
-                <tr>
-                    <td>{{ booking.room.room_number }} ({{ booking.room.room_type }})</td>
-                    <td>{{ booking.guest.name }}</td>
-                    <td>{{ booking.check_out_date.strftime('%Y-%m-%d %H:%M') if booking.check_out_date else 'N/A' }}</td>
-                    <td>${{ "%.2f"|format(booking.total_amount) if booking.total_amount is not none else 'N/A' }}</td>
-                    <td>
-                        <a href="{{ url_for('view_invoice', booking_id=booking.id) }}" class="btn btn-sm btn-info">View Invoice</a>
-                    </td>
-                </tr>
+    <h3 class="text-2xl font-semibold text-gray-700 mb-4">Rooms</h3>
+    {% if rooms %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
+            {% for room in rooms %}
+                {# Room Status Logic #}
+                {% set status_dot_class = '' %}
+                {% set status_text_class = '' %}
+                {% set status_badge_class = '' %}
+                {% set status_text = room.status|capitalize %}
+
+                {% if room.status == 'available' %}
+                    {% set status_dot_class = 'bg-gray-300' %}
+                    {% set status_text_class = 'text-gray-700' %}
+                    {% set status_badge_class = 'px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-200 text-gray-800' %}
+                {% elif room.status == 'occupied' %}
+                    {% set status_dot_class = 'bg-gray-800' %}
+                    {% set status_text_class = 'text-gray-800 font-bold' %}
+                    {% set status_badge_class = 'px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-700 text-white' %}
+                {% elif room.status == 'needs_cleaning' %}
+                    {% set status_dot_class = 'bg-gray-500' %}
+                    {% set status_text_class = 'text-gray-600' %}
+                    {% set status_badge_class = 'px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-400 text-gray-800' %}
+                    {% set status_text = 'Needs Cleaning' %}
+                {% elif room.status == 'maintenance' %}
+                    {% set status_dot_class = 'bg-black' %}
+                    {% set status_text_class = 'text-black' %}
+                    {% set status_badge_class = 'px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-500 text-white' %}
+                {% else %} {# Default/unknown status #}
+                    {% set status_dot_class = 'bg-gray-100' %}
+                    {% set status_text_class = 'text-gray-500' %}
+                    {% set status_badge_class = 'px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-700' %}
+                {% endif %}
+
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col">
+                    <div class="p-4 bg-gray-50 border-b border-gray-200">
+                        <h4 class="text-xl font-bold text-gray-800">Room {{ room.room_number }}</h4>
+                        <p class="text-sm text-gray-500">{{ room.room_type }}</p>
+                    </div>
+                    <div class="p-4 space-y-3 flex-grow">
+                        <p><span class="text-gray-700 font-semibold">${{ "%.2f"|format(room.rate_per_night) }}</span> / night</p>
+                        <div class="flex items-center space-x-2">
+                            <span class="h-3 w-3 rounded-full {{ status_dot_class }}"></span>
+                            <span class="{{ status_badge_class }}">{{ status_text }}</span>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-gray-50 border-t border-gray-200">
+                        {% if room.status == 'occupied' and room.id in active_bookings_map %}
+                            <form action="{{ url_for('check_out', booking_id=active_bookings_map[room.id]) }}" method="POST">
+                                <button type="submit" class="w-full bg-gray-700 hover:bg-gray-800 text-white font-semibold py-2 px-3 rounded-lg text-sm shadow-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-600">
+                                    Check-out
+                                </button>
+                            </form>
+                        {% elif room.status == 'available' %}
+                            <a href="{{ url_for('check_in', room_id=room.id) }}" class="w-full block text-center bg-white hover:bg-gray-100 text-gray-700 border border-gray-300 font-semibold py-2 px-3 rounded-lg text-sm shadow-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-500">
+                                Check-in
+                            </a>
+                        {% elif room.status == 'needs_cleaning' %}
+                            <button disabled class="w-full bg-gray-300 text-gray-500 font-semibold py-2 px-3 rounded-lg text-sm cursor-not-allowed">
+                                Mark as Clean (Soon)
+                            </button>
+                        {% elif room.status == 'maintenance' %}
+                             <button disabled class="w-full bg-gray-300 text-gray-500 font-semibold py-2 px-3 rounded-lg text-sm cursor-not-allowed">
+                                Set Available (Soon)
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
             {% endfor %}
-            </tbody>
-        </table>
-    </div>
-{% else %}
-    <p>No recent check-outs found.</p>
-{% endif %}
+        </div>
+    {% else %}
+        <p class="text-gray-500 p-4">No rooms found.</p>
+    {% endif %}
 
+    <hr class="my-8 border-gray-300">
+
+    <h3 class="text-2xl font-semibold text-gray-700 mb-4">Recent Check-outs & Invoices</h3>
+    {% if completed_bookings %}
+        <div class="bg-white shadow-xl rounded-lg overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Guest</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check-out Date</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invoice</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                {% for booking in completed_bookings %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ booking.room.room_number }} ({{ booking.room.room_type }})</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ booking.guest.name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ booking.check_out_date.strftime('%Y-%m-%d %H:%M') if booking.check_out_date else 'N/A' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${{ "%.2f"|format(booking.total_amount) if booking.total_amount is not none else 'N/A' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <a href="{{ url_for('view_invoice', booking_id=booking.id) }}" class="text-gray-600 hover:text-gray-900 font-medium hover:underline focus:outline-none focus:ring-1 focus:ring-gray-500 rounded">View Invoice</a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">No recent check-outs to display.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-gray-500 p-4">No recent check-outs found.</p>
+    {% endif %}
+
+</div>
 {% endblock %}

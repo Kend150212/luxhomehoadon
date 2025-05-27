@@ -1,3 +1,4 @@
+{#
 {% macro render_field(field, label_visible=true) %}
     <div class="form-group">
         {% if label_visible %}
@@ -11,3 +12,9 @@
         {% endif %}
     </div>
 {% endmacro %}
+
+Note: This form helper macro is no longer actively used for the Tailwind CSS design.
+Form fields are styled directly within their respective templates (e.g., login.html, 
+register.html, check_in.html) using Tailwind CSS utility classes.
+Refer to those templates for examples of direct form field styling.
+#}

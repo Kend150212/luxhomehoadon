@@ -1,50 +1,114 @@
 {% extends "base.html" %}
-{% from "_form_helpers.html" import render_field %}
+{# {% from "_form_helpers.html" import render_field %} #}
 
 {% block content %}
-<h2>{{ title }}</h2>
-<form method="POST" action="{{ url_for('check_in') }}">
-    {{ form.hidden_tag() }}
+<div class="flex justify-center items-start py-8 bg-gray-100 min-h-screen"> {# items-start to align card to top if content grows #}
+    <div class="w-full max-w-lg p-8 space-y-6 bg-white rounded-lg shadow-xl">
+        <h2 class="text-3xl font-bold text-center text-gray-800">Check-In Guest</h2>
+        <form method="POST" action="{{ url_for('check_in') }}" class="space-y-6">
+            {{ form.hidden_tag() }}
 
-    <fieldset>
-        <legend>Guest Information</legend>
-        {{ render_field(form.guest_id, class="form-control", id="guest_select") }}
+            {# Existing Guest Selection #}
+            <div>
+                <label for="{{ form.guest_id.id }}" class="block text-sm font-medium text-gray-700 mb-1">Existing Guest (Optional)</label>
+                {{ form.guest_id(class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm rounded-md shadow-sm") }}
+                {% if form.guest_id.errors %}
+                    <div class="text-xs text-red-600 mt-1">
+                        {% for error in form.guest_id.errors %}<span>{{ error }}</span>{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
 
-        <div id="new_guest_fields" style="display:none;">
-            {{ render_field(form.new_guest_name, class="form-control") }}
-            {{ render_field(form.new_guest_email, class="form-control") }}
-            {{ render_field(form.new_guest_phone, class="form-control") }}
-        </div>
-    </fieldset>
+            {# New Guest Fields - Conditionally Displayed #}
+            <div id="new_guest_fields" class="p-4 border border-gray-200 rounded-md space-y-4 bg-gray-50" style="display: none;"> {/* Initially hidden, JS will show it */}
+                <p class="text-sm font-medium text-gray-700">Or, Create New Guest:</p>
+                <div>
+                    <label for="{{ form.new_guest_name.id }}" class="block text-sm font-medium text-gray-700 mb-1">New Guest Name*</label>
+                    {{ form.new_guest_name(class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm", placeholder="Full Name") }}
+                    {% if form.new_guest_name.errors %}
+                        <div class="text-xs text-red-600 mt-1">
+                            {% for error in form.new_guest_name.errors %}<span>{{ error }}</span>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div>
+                    <label for="{{ form.new_guest_email.id }}" class="block text-sm font-medium text-gray-700 mb-1">New Guest Email*</label>
+                    {{ form.new_guest_email(class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm", placeholder="email@example.com") }}
+                    {% if form.new_guest_email.errors %}
+                        <div class="text-xs text-red-600 mt-1">
+                            {% for error in form.new_guest_email.errors %}<span>{{ error }}</span>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div>
+                    <label for="{{ form.new_guest_phone.id }}" class="block text-sm font-medium text-gray-700 mb-1">New Guest Phone</label>
+                    {{ form.new_guest_phone(class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm", placeholder="(Optional)") }}
+                    {% if form.new_guest_phone.errors %}
+                        <div class="text-xs text-red-600 mt-1">
+                            {% for error in form.new_guest_phone.errors %}<span>{{ error }}</span>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
 
-    <fieldset>
-        <legend>Booking Details</legend>
-        {{ render_field(form.room_id, class="form-control") }}
-        {{ render_field(form.check_in_date, class="form-control") }}
-        {{ render_field(form.check_out_date, class="form-control") }}
-    </fieldset>
+            {# Room Selection #}
+            <div>
+                <label for="{{ form.room_id.id }}" class="block text-sm font-medium text-gray-700 mb-1">Select Room*</label>
+                {{ form.room_id(class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm rounded-md shadow-sm") }}
+                {% if form.room_id.errors %}
+                    <div class="text-xs text-red-600 mt-1">
+                        {% for error in form.room_id.errors %}<span>{{ error }}</span>{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
 
-    {{ render_field(form.submit, class="btn btn-primary") }}
-</form>
+            {# Date Fields #}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="{{ form.check_in_date.id }}" class="block text-sm font-medium text-gray-700 mb-1">Check-in Date*</label>
+                    {{ form.check_in_date(class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm") }}
+                    {% if form.check_in_date.errors %}
+                        <div class="text-xs text-red-600 mt-1">
+                            {% for error in form.check_in_date.errors %}<span>{{ error }}</span>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div>
+                    <label for="{{ form.check_out_date.id }}" class="block text-sm font-medium text-gray-700 mb-1">Check-out Date (Optional)</label>
+                    {{ form.check_out_date(class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm") }}
+                    {% if form.check_out_date.errors %}
+                        <div class="text-xs text-red-600 mt-1">
+                            {% for error in form.check_out_date.errors %}<span>{{ error }}</span>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var guestSelect = document.getElementById('guest_select');
-        var newGuestFields = document.getElementById('new_guest_fields');
+            {# Submit Button #}
+            <div>
+                {{ form.submit(class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-md shadow-sm text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 transition duration-150 ease-in-out") }}
+            </div>
+        </form>
 
-        function toggleNewGuestFields() {
-            if (guestSelect.value == '0') { // '0' is the value for '--- New Guest ---'
-                newGuestFields.style.display = 'block';
-            } else {
-                newGuestFields.style.display = 'none';
-            }
-        }
+        {# JavaScript for conditional display of new guest fields #}
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const guestSelect = document.getElementById('{{ form.guest_id.id }}');
+                const newGuestFields = document.getElementById('new_guest_fields');
 
-        // Initial check
-        toggleNewGuestFields();
-
-        // Toggle when selection changes
-        guestSelect.addEventListener('change', toggleNewGuestFields);
-    });
-</script>
+                function toggleNewGuestFields() {
+                    if (guestSelect.value === '0') { // '0' is the value for "--- New Guest ---"
+                        newGuestFields.style.display = 'block';
+                    } else {
+                        newGuestFields.style.display = 'none';
+                    }
+                }
+                if (guestSelect) { // Ensure guestSelect exists before adding event listener
+                    guestSelect.addEventListener('change', toggleNewGuestFields);
+                    toggleNewGuestFields(); // Initial check on page load
+                }
+            });
+        </script>
+    </div>
+</div>
 {% endblock %}

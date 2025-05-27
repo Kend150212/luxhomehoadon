@@ -1,0 +1,17 @@
+{
+  "name": "lux_home",
+  "version": "1.0.0",
+  "description": "Lux Home Hotel Management System",
+  "main": "index.js",
+  "scripts": {
+    "build:css": "./node_modules/.bin/tailwindcss -i ./lux_home/app/static/css/src/main.css -o ./lux_home/app/static/css/dist/style.css --minify"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.1.7"
+  }
+}
